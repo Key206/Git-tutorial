@@ -16,7 +16,7 @@ void cb_clear(cbuffer_t *cb){
 uint32_t cb_read(cbuffer_t *cb, void *buf, uint32_t nbytes){
     uint32_t receivedBytes;
     for(receivedBytes = 0; receivedBytes <= nbytes; ++receivedBytes){
-        if(cb_data_count(cb) > 0){ 
+        if(cb_data_count(cb) >= 0){ 
             *((uint8_t*)buf + receivedBytes) = *(cb->data + (cb->reader++));
         }
     }
@@ -25,7 +25,7 @@ uint32_t cb_read(cbuffer_t *cb, void *buf, uint32_t nbytes){
 uint32_t cb_write(cbuffer_t *cb, void *buf, uint32_t nbytes){
     uint32_t writtenBytes;
     for(writtenBytes = 0; writtenBytes <= nbytes; ++writtenBytes){
-        if(cb_space_count(cb) > 0){
+        if(cb_space_count(cb) >= 0){
             *(cb->data + (cb->writer++)) = *((uint8_t*)buf + writtenBytes);
         }
     }
