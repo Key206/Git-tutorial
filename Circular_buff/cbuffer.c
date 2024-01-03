@@ -1,7 +1,7 @@
 #include  "cbuffer.h"
 
 void cb_init(cbuffer_t *cb, void *buf, uint32_t size){
-    cb->data = buf;
+    cb->data = (uint8_t*)buf;
     cb->size = size;
     cb->reader = 0;
     cb->writer = 0;
@@ -14,22 +14,24 @@ void cb_clear(cbuffer_t *cb){
     cb->overflow = 0;
 }
 uint32_t cb_read(cbuffer_t *cb, void *buf, uint32_t nbytes){
-    uint32_t receivedBytes;
-    for(receivedBytes = 0; receivedBytes <= nbytes; ++receivedBytes){
-        if(cb_data_count(cb) >= 0){ 
-            *((uint8_t*)buf + receivedBytes) = *(cb->data + (cb->reader++));
+    uint32_t received_bytes = 0;
+    for(received_bytes = 0; received_bytes < nbytes; ++received_bytes){
+        if(cb_data_count(cb) > 0){ 
+            *((uint8_t*)buf + received_bytes) = *(cb->data + (cb->reader++));
+            if(cb->reader > cb->size) cb->reader = 0;
         }else break;
     }
-    return receivedBytes;
+    return received_bytes;
 }
 uint32_t cb_write(cbuffer_t *cb, void *buf, uint32_t nbytes){
-    uint32_t writtenBytes;
-    for(writtenBytes = 0; writtenBytes <= nbytes; ++writtenBytes){
-        if(cb_space_count(cb) >= 0){
-            *(cb->data + (cb->writer++)) = *((uint8_t*)buf + writtenBytes);
+    uint32_t written_bytes = 0;
+    for(written_bytes = 0; written_bytes < nbytes; ++written_bytes){
+        if(cb_space_count(cb) > 0){
+            *(cb->data + (cb->writer++)) = *((uint8_t*)buf + written_bytes);
+            if(cb->writer > cb->size) cb->writer = 0;
         }else break;
     }
-    return writtenBytes;
+    return written_bytes;
 }
 uint32_t cb_data_count(cbuffer_t *cb){
     uint32_t data_count = cb->reader <= cb->writer ? (cb->writer - cb->reader) : 
